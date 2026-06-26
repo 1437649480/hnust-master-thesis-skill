@@ -571,6 +571,9 @@ class ThesisChecker:
                 continue
             if match_ref(text):  # 跳过参考文献条目
                 continue
+            # 跳过款/项标题（以（1）、（2）等开头）
+            if re.match(r'^[（(][\d一二三四五六七八九十]+[）)]', text):
+                continue
             if match_h1(text) or match_h2(text) or match_h3(text):
                 if re.search(r'\[\d+\]', text):
                     self.check(False, '引用', f'标题"{text[:20]}"中不应有引用标注')
@@ -803,11 +806,11 @@ class ThesisChecker:
             for cat, counts in sorted(categories.items()):
                 parts = []
                 if counts['errors']:
-                    parts.append(f"✗{counts['errors']}")
+                    parts.append(f"[ERR]{counts['errors']}")
                 if counts['warnings']:
-                    parts.append(f"⚠{counts['warnings']}")
+                    parts.append(f"[WARN]{counts['warnings']}")
                 print(f"    {cat}: {' '.join(parts)}")
-        print(f"{'─'*60}\n")
+        print(f"{'-'*60}\n")
 
         return len(self.errors) == 0
 
