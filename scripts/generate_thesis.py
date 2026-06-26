@@ -174,8 +174,8 @@ def setup_footer(section):
 
 def add_bilingual_caption(doc, cn_text, en_text):
     """添加中英文双语图表标题"""
-    add_paragraph(doc, cn_text, '宋体', Pt(12), True, WD_ALIGN_PARAGRAPH.CENTER, Pt(6), 0)
-    add_paragraph(doc, en_text, 'Times New Roman', Pt(12), True, WD_ALIGN_PARAGRAPH.CENTER, 0, Pt(6))
+    add_paragraph(doc, cn_text, '宋体', Pt(12), True, WD_ALIGN_PARAGRAPH.CENTER, 6, 0)
+    add_paragraph(doc, en_text, 'Times New Roman', Pt(12), True, WD_ALIGN_PARAGRAPH.CENTER, 0, 6)
 
 
 def add_figure_placeholder(doc, cn_label, en_label):

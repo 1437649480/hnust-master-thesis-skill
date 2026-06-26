@@ -605,8 +605,8 @@ class ThesisChecker:
             if ti == 0 and len(table.rows) <= 10:
                 first_cell_text = ''
                 if table.rows[0].cells:
-                    first_cell_text = table.rows[0].cells[0].text.strip()
-                if first_cell_text in ('题目', '作者', '学院'):
+                    first_cell_text = table.rows[0].cells[0].text.strip().replace('　', '')
+                if first_cell_text in ('题目', '作者', '学院', '学科专业', '研究方向', '研究生', '指导教师'):
                     continue
             for ri, row in enumerate(table.rows):
                 for ci, cell in enumerate(row.cells):
