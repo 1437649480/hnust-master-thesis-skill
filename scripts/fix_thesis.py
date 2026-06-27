@@ -321,6 +321,18 @@ class ThesisFixer:
             'errors': [],
         }
 
+        # 检测封面/扉页区域边界（第一个出现"摘要"/"ABSTRACT"/"目录"/"第X章"的段落）
+        self._cover_end_idx = 0
+        for i, para in enumerate(self.doc.paragraphs):
+            text = para.text.strip()
+            if not text:
+                continue
+            if re.match(r'^摘\s*要$', text) or text.upper() == 'ABSTRACT' \
+               or text in ('目 录', '目录') or re.match(r'^目\s+录$', text) \
+               or re.match(r'^第[一二三四五六七八九十\d]+章', text):
+                self._cover_end_idx = i
+                break
+
     # ── 页面设置修复 ──
     def fix_page_setup(self):
         """修复所有节的页面设置为A4纸，上30mm 下30mm 左25mm 右25mm，页眉20mm 页脚20mm"""
@@ -406,9 +418,13 @@ class ThesisFixer:
         遍历所有段落，根据内容匹配类型并修复格式。
         匹配顺序: 从最具体到最宽泛，避免误匹配。
         """
-        for para in self.doc.paragraphs:
+        for i, para in enumerate(self.doc.paragraphs):
             text = get_text(para)
             if not text:
+                continue
+
+            # 跳过封面/扉页区域
+            if i < self._cover_end_idx:
                 continue
 
             self.stats['total_paragraphs'] += 1
@@ -558,9 +574,12 @@ class ThesisFixer:
         """
         total_fixed = 0
 
-        for para in self.doc.paragraphs:
+        for i, para in enumerate(self.doc.paragraphs):
             text = get_text(para)
             if not text:
+                continue
+            # 跳过封面/扉页区域
+            if i < self._cover_end_idx:
                 continue
 
             # 跳过标题段落
@@ -686,7 +705,12 @@ class ThesisFixer:
     def fix_table_cells(self):
         """修复表内文字格式：中文五号宋体，英文五号Times New Roman"""
         fixed_count = 0
-        for table in self.doc.tables:
+        for ti, table in enumerate(self.doc.tables):
+            # 跳过封面表格（第一个表格，通常包含"题目"/"作者"等）
+            if ti == 0:
+                first_cell = table.rows[0].cells[0].text.strip() if table.rows else ''
+                if first_cell in ('题目', '作者', '学院', '学科专业', '研究方向', '研究生', '指导教师', '论文编号'):
+                    continue
             for row in table.rows:
                 for cell in row.cells:
                     for para in cell.paragraphs:
@@ -728,6 +752,9 @@ class ThesisFixer:
         for i, para in enumerate(paragraphs):
             text = get_text(para)
             if not text:
+                continue
+            # 跳过封面/扉页区域
+            if i < self._cover_end_idx:
                 continue
             
             # 检查是否需要插入分页符的标题
